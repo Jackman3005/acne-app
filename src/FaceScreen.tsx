@@ -1,4 +1,4 @@
-import {GestureResponderEvent, Image, StyleSheet, TouchableOpacity, View} from 'react-native'
+import {GestureResponderEvent, Image, StyleSheet, TextInput, TouchableOpacity, View, findNodeHandle} from 'react-native'
 import * as React from 'react'
 import {NavigationParams, NavigationScreenProp, NavigationState} from 'react-navigation'
 
@@ -38,7 +38,9 @@ class FaceScreen extends React.Component<FaceScreenProps, FaceScreenState> {
   render() {
     return (
       <View style={styles.container}>
-        <TouchableOpacity activeOpacity={1} style={styles.faceContainer} onPress={this.addSpot}>
+        <TextInput placeholder={'Enter a note...'} />
+        <View style={styles.imagesContainer}>
+          <TouchableOpacity activeOpacity={1} style={styles.faceContainer} onPress={this.addSpot}/>
           <Image style={styles.faceImage} source={faceImage}/>
           {this.state.spots.map((spot: Spot, index) => (
             <TouchableOpacity key={index} style={{
@@ -49,7 +51,8 @@ class FaceScreen extends React.Component<FaceScreenProps, FaceScreenState> {
               <Image style={styles.dotImages} source={stageToImage[spot.stage]}/>
             </TouchableOpacity>
           ))}
-        </TouchableOpacity>
+        </View>
+
       </View>
     )
   }
@@ -70,6 +73,8 @@ class FaceScreen extends React.Component<FaceScreenProps, FaceScreenState> {
   }
 
   updateSpot = (index: number) => (event: GestureResponderEvent) => {
+    event.preventDefault()
+    event.stopPropagation()
 
     const spotToUpdate = this.state.spots[index] as Spot
     let newStage: Stage | undefined
@@ -101,25 +106,30 @@ class FaceScreen extends React.Component<FaceScreenProps, FaceScreenState> {
 export default FaceScreen
 
 const styles = StyleSheet.create({
-  faceContainer: {
-    display: 'flex',
+  imagesContainer: {
     width: '95%',
-    height: '95%',
-    borderWidth: 2,
-    borderColor: 'gray',
+    height: '80%',
+    marginTop: '10%',
   },
-  faceImage: {
-    // marginHorizontal: '10%',
-    // marginVertical: '10%',
+  faceContainer: {
+    position: 'absolute',
     width: '100%',
     height: '100%',
-    // resizeMode: '' //"cover" | "contain" | "stretch" | "repeat" | "center";
+    zIndex: 2,
+  },
+  faceImage: {
+    position: 'absolute',
+    marginTop: '10%',
+    width: '100%',
+    height: '82%',
+    zIndex: 1,
   },
   dotContainer: {
     position: 'absolute',
     display: 'flex',
     width: dotSize + 8,
     height: dotSize + 8,
+    zIndex:3,
   },
   dotImages: {
     width: dotSize,
