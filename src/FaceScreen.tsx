@@ -1,25 +1,11 @@
-import {GestureResponderEvent, Image, StyleSheet, TextInput, TouchableOpacity, View, findNodeHandle} from 'react-native'
+import {Text, GestureResponderEvent, StyleSheet, TextInput, TouchableOpacity, View} from 'react-native'
 import * as React from 'react'
 import {NavigationParams, NavigationScreenProp, NavigationState} from 'react-navigation'
-
-const faceImage = require('../assets/bg-face.png')
-const stageToImage: { [u in Stage]: object } = {
-  'Small': require('../assets/spot1.png'),
-  'Big': require('../assets/spot2.png'),
-  'Dying': require('../assets/spot3.png'),
-}
-const dotSize = 20
+import Face, {Spot, Stage} from './FaceComponent'
+import PTButton from './ButtonComponent'
 
 interface FaceScreenProps {
   navigation: NavigationScreenProp<NavigationState, NavigationParams>;
-}
-
-type Stage = 'Small' | 'Big' | 'Dying'
-
-type Spot = {
-  x: number,
-  y: number,
-  stage: Stage
 }
 
 interface FaceScreenState {
@@ -27,10 +13,6 @@ interface FaceScreenState {
 }
 
 class FaceScreen extends React.Component<FaceScreenProps, FaceScreenState> {
-  static navigationOptions = {
-    title: 'Record your skin',
-  }
-
   state = {
     spots: [],
   }
@@ -38,21 +20,16 @@ class FaceScreen extends React.Component<FaceScreenProps, FaceScreenState> {
   render() {
     return (
       <View style={styles.container}>
-        <TextInput placeholder={'Enter a note...'} />
-        <View style={styles.imagesContainer}>
-          <TouchableOpacity activeOpacity={1} style={styles.faceContainer} onPress={this.addSpot}/>
-          <Image style={styles.faceImage} source={faceImage}/>
-          {this.state.spots.map((spot: Spot, index) => (
-            <TouchableOpacity key={index} style={{
-              ...styles.dotContainer,
-              top: spot.y - ((dotSize + 8) / 2),
-              left: spot.x - ((dotSize + 8) / 2),
-            }} onPress={this.updateSpot(index)}>
-              <Image style={styles.dotImages} source={stageToImage[spot.stage]}/>
-            </TouchableOpacity>
-          ))}
+        <TextInput placeholder={'Enter a note...'}/>
+        <View style={styles.faceContainer}>
+          <Face
+            spots={this.state.spots}
+            allowEditing={true}
+            onAddSpot={this.addSpot}
+            onUpdateSpot={this.updateSpot}
+          />
         </View>
-
+        <PTButton text="Save" onPress={this.saveSpots}/>
       </View>
     )
   }
@@ -89,7 +66,6 @@ class FaceScreen extends React.Component<FaceScreenProps, FaceScreenState> {
         newStage = undefined
     }
 
-
     const spots: Spot[] = [
       ...this.state.spots.slice(0, index),
       ...this.state.spots.slice(index + 1),
@@ -101,45 +77,25 @@ class FaceScreen extends React.Component<FaceScreenProps, FaceScreenState> {
 
     this.setState({spots})
   }
+
+  saveSpots = () => {
+    this.props.navigation.navigate('Home')
+  }
 }
 
 export default FaceScreen
 
 const styles = StyleSheet.create({
-  imagesContainer: {
-    width: '95%',
-    height: '80%',
-    marginTop: '10%',
-  },
-  faceContainer: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    zIndex: 2,
-  },
-  faceImage: {
-    position: 'absolute',
-    marginTop: '10%',
-    width: '100%',
-    height: '82%',
-    zIndex: 1,
-  },
-  dotContainer: {
-    position: 'absolute',
-    display: 'flex',
-    width: dotSize + 8,
-    height: dotSize + 8,
-    zIndex:3,
-  },
-  dotImages: {
-    width: dotSize,
-    height: dotSize,
-  },
   container: {
     flex: 1,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  faceContainer: {
+    flex: 1,
+    width: '90%',
+    marginBottom: 30,
   },
   text: {
     marginBottom: 25,
